@@ -1,0 +1,21 @@
+:root {
+  --ks-red: #d32f2f;
+  --ks-black: #000;
+  --ks-bg: #f0f0f0;
+  --ks-border: 4px solid #000;
+  --ks-shadow: 15px 15px 0px #000;
+  --ks-shadow-sm: 8px 8px 0px #000;
+}
+* { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+body { 
+  background: var(--ks-bg); 
+  background-image: linear-gradient(#e5e5e5 1.5px, transparent 1.5px), linear-gradient(90deg, #e5e5e5 1.5px, transparent 1.5px);
+  background-size: 40px 40px;
+  margin: 0; font-family: system-ui, sans-serif;
+}
+.ks-card { background: #fff; border: var(--ks-border); box-shadow: var(--ks-shadow); padding: 30px; margin-bottom: 20px; position: relative; }
+.ks-btn { background: var(--ks-red); color: #fff; border: var(--ks-border); font-weight: 1000; text-transform: uppercase; letter-spacing: 1px; padding: 20px; cursor: pointer; box-shadow: var(--ks-shadow-sm); transition: 0.1s; display: block; width: 100%; text-decoration: none; text-align: center; }
+.ks-btn:active { transform: translate(4px, 4px); box-shadow: 0px 0px 0px #000; }
+.ks-input { width: 100%; padding: 15px; border: var(--ks-border); font-weight: 800; outline: none; margin: 8px 0; font-size: 16px; background: #fff; border-radius: 0 !important; }
+.ks-label { font-size: 10px; font-weight: 1000; color: #999; letter-spacing: 2px; text-transform: uppercase; display: block; margin-top: 10px; }
+.ks-data { font-family: ui-monospace, monospace; color: var(--ks-red); font-weight: 1000; }
