@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import SuccessModal from './SuccessModal';
 
 export default function LeadForm() {
@@ -11,7 +11,24 @@ export default function LeadForm() {
   const update = (k, v) => setFd(prev => ({ ...prev, [k]: v }));
   const toggle = (f) => setFd(p => ({...p, [f]: !p[f]}));
 
+  const phoneDigits = useMemo(() => fd.phone.replace(/\D/g, ''), [fd.phone]);
+  const canSubmit = useMemo(() => {
+    return (
+      fd.vin.trim().length >= 11 &&
+      fd.street.trim() &&
+      fd.city.trim() &&
+      fd.zip.trim().length >= 5 &&
+      fd.name.trim().length >= 2 &&
+      phoneDigits.length >= 10
+    );
+  }, [fd, phoneDigits]);
+
   const submit = async () => {
+    if (!canSubmit) {
+      alert('Please complete all required fields.');
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await fetch('/api/submit-lead', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(fd) });
@@ -21,8 +38,11 @@ export default function LeadForm() {
 
       if (res.ok && hash) window.location.href = `/status/${hash}`;
       else setShowModal(true);
-    } catch(e) { alert('OFFLINE'); }
-    setLoading(false);
+    } catch (e) {
+      alert('OFFLINE');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -63,7 +83,7 @@ export default function LeadForm() {
         <input className="ks-input" placeholder="NAME" onChange={e => update('name', e.target.value)} />
         <input className="ks-input" placeholder="PHONE" onChange={e => update('phone', e.target.value)} />
         <input className="ks-input" placeholder="EMAIL" onChange={e => update('email', e.target.value)} />
-        <button disabled={loading} className="ks-btn" onClick={submit}>GET OFFER</button>
+        <button disabled={loading || !canSubmit} className="ks-btn" onClick={submit}>GET OFFER</button>
       </div>)}
     </div>
   );

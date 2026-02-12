@@ -1,6 +1,5 @@
-import { NextResponse } from 'next/server';
+import { forwardPost } from '../../../lib/webhookProxy';
+
 export async function POST(req) {
-  const b = await req.json();
-  await fetch('https://n8n.mrstac.com/webhook/towing', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(b) });
-  return NextResponse.json({ success: true });
+  return forwardPost(req, 'https://n8n.mrstac.com/webhook/towing');
 }
