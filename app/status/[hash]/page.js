@@ -15,8 +15,11 @@ export default function SellerStatus() {
         const d = await r.json();
         const raw = Array.isArray(d.vehicle) ? d.vehicle[0] : (Array.isArray(d) ? d[0] : (d.vehicle || d));
         if(raw && (raw.vin || raw.year)) setV(raw);
+      } catch (e) {
+        console.error('Sync error');
+      } finally {
         setLoading(false);
-      } catch (e) { console.error("Sync error"); }
+      }
     };
     fetchData();
   }, [hash]);
@@ -39,7 +42,7 @@ export default function SellerStatus() {
             </div>
             <p style={{color:'var(--ks-green)', fontWeight:'1000', fontSize:'12px'}}>✓ PRICE SECURED & VERIFIED</p>
         </div>
-        <a href={`https://n8n.mrstac.com/webhook/accepted?vin=${v?.vin}&hash=${hash}`} className="ks-btn">ACCEPT & SCHEDULE PICKUP</a>
+        <a href={`https://n8n.mrstac.com/webhook/accepted?${new URLSearchParams({ vin: v?.vin || '', hash: String(hash || '') }).toString()}`} className="ks-btn">ACCEPT & SCHEDULE PICKUP</a>
       </div>
     </main>
   );
