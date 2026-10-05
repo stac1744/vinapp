@@ -1,0 +1,342 @@
+<title>MR·STAC Diagnostics v2.1</title>
+<meta name="description" content="Updated PRD with a scored improvement-selection plan for www.mrstac.com diagnostics features.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,600..900&family=Public+Sans:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: a single reading column like a shop work order — hard black rules, red stamps for decisions, mono for codes and figures. */
+:root {
+  --bg: #f4f3f1;
+  --paper: #ffffff;
+  --ink: #141313;
+  --muted: #5d5856;
+  --rule: #141313;
+  --hair: #d9d5d2;
+  --red: #c62828;
+  --red-wash: #fbe9e7;
+  --ok: #1e6b3a;
+  --ok-wash: #e4f2e8;
+  --warn: #8a5a00;
+  --warn-wash: #fbf0d9;
+  --dim-wash: #ecebea;
+  --f-display: "Archivo", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --f-body: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #161414; --paper: #1f1c1c; --ink: #f1eeec; --muted: #a8a19e; --rule: #f1eeec; --hair: #3a3535;
+    --red: #ff6b5e; --red-wash: #3a1d1b; --ok: #6fd08f; --ok-wash: #16301f; --warn: #f0bf5a; --warn-wash: #352a12; --dim-wash: #2a2626;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #161414; --paper: #1f1c1c; --ink: #f1eeec; --muted: #a8a19e; --rule: #f1eeec; --hair: #3a3535;
+  --red: #ff6b5e; --red-wash: #3a1d1b; --ok: #6fd08f; --ok-wash: #16301f; --warn: #f0bf5a; --warn-wash: #352a12; --dim-wash: #2a2626;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 16px; line-height: 1.6; margin: 0; padding-inline: 16px; padding-block: 32px 64px; }
+.wrap { max-width: 860px; margin: 0 auto; display: flex; flex-direction: column; gap: 48px; }
+h1, h2, h3 { font-family: var(--f-display); font-stretch: 85%; text-wrap: balance; line-height: 1.1; margin: 0; }
+h1 { font-size: clamp(34px, 6vw, 54px); font-weight: 900; letter-spacing: -0.01em; }
+h2 { font-size: 26px; font-weight: 800; padding-top: 14px; border-top: 3px solid var(--rule); }
+h3 { font-size: 18px; font-weight: 800; }
+p { margin: 0; max-width: 68ch; }
+section { display: flex; flex-direction: column; gap: 16px; }
+a { color: var(--red); }
+a:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+code, .mono { font-family: var(--f-mono); font-size: 0.88em; }
+.eyebrow { font-family: var(--f-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.lede { font-size: 18px; max-width: 64ch; }
+header { display: flex; flex-direction: column; gap: 14px; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 20px; font-family: var(--f-mono); font-size: 13px; color: var(--muted); }
+.meta b { color: var(--ink); font-weight: 700; }
+ul, ol { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 6px; max-width: 70ch; }
+
+.alert { background: var(--red-wash); border: 3px solid var(--red); padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+.alert h2 { border: 0; padding: 0; color: var(--red); font-size: 22px; }
+.changes { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.change { background: var(--paper); border: 1px solid var(--hair); padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.change .eyebrow { color: var(--red); }
+
+.tbl { overflow-x: auto; border-top: 2px solid var(--rule); border-bottom: 2px solid var(--rule); background: var(--paper); }
+table { border-collapse: collapse; width: 100%; font-size: 14px; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; vertical-align: top; padding: 9px 10px; border-bottom: 1px solid var(--hair); }
+th { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 700; white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.n, th.n { text-align: right; font-family: var(--f-mono); white-space: nowrap; }
+td.score { font-weight: 700; }
+tr.total td { font-weight: 700; border-top: 2px solid var(--rule); }
+.small { font-size: 13px; color: var(--muted); }
+
+.tag { display: inline-block; font-family: var(--f-mono); font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; padding: 2px 7px; border: 1.5px solid currentColor; white-space: nowrap; }
+.t-sel { color: var(--ok); background: var(--ok-wash); }
+.t-str { color: var(--warn); background: var(--warn-wash); }
+.t-def { color: var(--muted); background: var(--dim-wash); }
+.t-cut { color: var(--red); background: var(--red-wash); }
+.t-gate { color: var(--paper); background: var(--red); border-color: var(--red); }
+
+.formula { background: var(--paper); border: 2px solid var(--rule); padding: 14px 16px; font-family: var(--f-mono); font-size: 14px; overflow-x: auto; }
+.rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.rule { border-left: 3px solid var(--rule); padding: 4px 0 4px 12px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+
+.phases { display: flex; flex-direction: column; gap: 0; border-top: 2px solid var(--rule); }
+.phase { display: grid; grid-template-columns: 140px 1fr; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--hair); }
+.phase .when { font-family: var(--f-mono); font-size: 13px; color: var(--muted); display: flex; flex-direction: column; gap: 4px; }
+.phase .when b { font-family: var(--f-display); font-stretch: 85%; font-size: 20px; color: var(--ink); }
+.phase .body { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.phase .done { font-size: 14px; color: var(--muted); }
+.phase .done b { color: var(--ink); }
+@media (max-width: 560px) { .phase { grid-template-columns: 1fr; gap: 6px; } }
+
+.gantt { overflow-x: auto; background: var(--paper); border: 1px solid var(--hair); padding: 12px; }
+.gantt svg { display: block; min-width: 640px; width: 100%; height: auto; }
+.gantt text { font-family: var(--f-mono); font-size: 11px; fill: var(--muted); }
+.gantt .lbl { fill: var(--ink); font-weight: 700; }
+.gantt .grid { stroke: var(--hair); stroke-width: 1; }
+.gantt .bar { fill: var(--ink); }
+.gantt .bar-s { fill: var(--red); }
+.gantt .ms { fill: var(--red); }
+
+.qa { display: flex; flex-direction: column; gap: 12px; }
+.q { display: grid; grid-template-columns: 26px 1fr; gap: 10px; }
+.q .box { width: 18px; height: 18px; border: 2px solid var(--rule); margin-top: 3px; font-family: var(--f-mono); font-size: 12px; line-height: 14px; text-align: center; }
+.q .box.on { background: var(--ink); color: var(--bg); }
+.q div { min-width: 0; }
+footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--hair); padding-top: 14px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">Product requirements · internal build · supersedes v2</span>
+  <h1>MR·STAC Diagnostics v2.1</h1>
+  <div class="meta"><span><b>Oct 5, 2026</b></span><span>Owner <b>@Fred</b></span><span>Repo <b>stac1744/vinapp</b></span><span>Status <b>Draft for sign-off</b></span></div>
+  <p class="lede">Every car MR·STAC buys gets scanned at pickup, and the scan adjusts the offer. v2.1 keeps that goal. It adds a scored method for choosing which improvements ship to www.mrstac.com and in what order, and it re-plans the build around what the current codebase actually contains.</p>
+</header>
+
+<div class="alert" role="alert">
+  <span class="eyebrow" style="color:var(--red)">Gate · fix before any feature work</span>
+  <h2>The vinapp repo contains malware</h2>
+  <p>The initial commit (<code>a9f7b0d</code>) added files under <code>data/</code> that match a common IoT botnet dropper: <code>.update</code> (a stripped 64-bit Linux executable), <code>arm7.kok</code> (an ARM executable), eight more <code>*.kok</code> files for other CPU types, and <code>.monitor</code>, a shell loop that relaunches a deleted binary every 60 seconds. <code>sync.log</code> shows the repo was copied from a live server at <code>/var/www/vinapp</code>, so that server should be treated as compromised.</p>
+  <ul>
+    <li>Take the <code>/var/www/vinapp</code> host offline and rebuild it from a clean image. Do not clean it in place.</li>
+    <li>Rotate every credential that host could read: n8n webhook URLs and keys, database, SSH, hosting, and DNS.</li>
+    <li>Remove <code>data/.update</code>, <code>data/.monitor</code>, every <code>data/*.kok</code> file, and the empty stray files in the repo root. Consider purging them from git history as well.</li>
+    <li>Turn type and lint checks back on (<code>next.config.js</code> currently ignores build errors) and add a CI check that fails on any committed executable.</li>
+  </ul>
+</div>
+
+<section>
+  <h2>What changed from v2</h2>
+  <div class="changes">
+    <div class="change"><span class="eyebrow">New Phase S</span><p>Two weeks to secure and clean up the repo and server. Nothing ships until it's done.</p></div>
+    <div class="change"><span class="eyebrow">Platform reality</span><p>vinapp has no database, login or API of its own. Every route forwards to n8n webhooks, so Phase 0 now builds that foundation.</p></div>
+    <div class="change"><span class="eyebrow">Selection method</span><p>Each candidate is scored on value, reach, ease, unlocks and risk. The score decides whether it is a must-have, stretch or deferred item.</p></div>
+    <div class="change"><span class="eyebrow">Quick wins added</span><p>VIN decode with open recalls, a "known codes" field on the lead form, and detection of codes cleared before pickup.</p></div>
+    <div class="change"><span class="eyebrow">Moved later</span><p>Engine audio, publishing to listings, and Mode 06 drop from must-have to stretch or deferred, based on their scores.</p></div>
+    <div class="change"><span class="eyebrow">Fixed contradiction</span><p>The battery-drain mitigation needs voltage gating, which v2 put in Phase 3. It now ships with the scanner in Phase 1.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>What the site runs today</h2>
+  <p>This answers v2's first open question. The <code>vinapp</code> repo has no <code>/vehicle-diagnostics</code> route; whatever serves that page lives somewhere else and must be found (see Open questions).</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Area</th><th>Current state</th><th>Effect on this plan</th></tr></thead>
+    <tbody>
+      <tr><td>Stack</td><td>Next.js 15 App Router, React 19, plain JS with inline styles</td><td>Web features go here; the Android app becomes one more client</td></tr>
+      <tr><td>Backend</td><td>Six API routes, all thin proxies to <code>n8n.mrstac.com</code> webhooks via <code>lib/webhookProxy.js</code></td><td>Scan uploads, token login and versioned APIs need a real data store. n8n can't provide that alone</td></tr>
+      <tr><td>Data</td><td>No database. Prices live in <code>data/prices.csv</code></td><td>Phase 0 adds Postgres for scans, codes, reports and offer rules</td></tr>
+      <tr><td>Seller flows</td><td>Lead form <code>/</code>, seller status <code>/status/[hash]</code>, <code>/bid</code>, <code>/market</code>, <code>/towing</code>, <code>/catalyst</code>, <code>/locations/[city]</code></td><td>The condition report goes on the existing status page; Mode 06 results feed the catalyst quote</td></tr>
+      <tr><td>Quality</td><td><code>ignoreBuildErrors</code> on, no tests, no input validation (see <code>CODE_REVIEW.md</code>)</td><td>Shared validation schemas go into the Phase 0 foundation</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <h2>How improvements are selected</h2>
+  <p>Each candidate gets a 1–5 rating on five factors. The technician advisor and product owner rate them together at kickoff, and again at each phase sign-off as new data arrives.</p>
+  <div class="formula">Score = 3·Value + 2·Reach + 2·Ease + 1·Unlocks − 2·Risk   <span class="small">(max 38)</span></div>
+  <div class="rules">
+    <div class="rule"><h3>Value</h3><p class="small">Improves offer accuracy or margin per car, or prevents a loss.</p></div>
+    <div class="rule"><h3>Reach</h3><p class="small">Share of leads, pickups or site visitors it touches.</p></div>
+    <div class="rule"><h3>Ease</h3><p class="small">5 means under one developer-week; 1 means more than four.</p></div>
+    <div class="rule"><h3>Unlocks</h3><p class="small">How many other candidates depend on it.</p></div>
+    <div class="rule"><h3>Risk</h3><p class="small">Technical, legal or seller-trust exposure.</p></div>
+  </div>
+  <h3>Decision rules</h3>
+  <ol>
+    <li><b>Gates come first.</b> Security fixes and license compliance aren't scored. They block everything else until they're done.</li>
+    <li><b>Score 24 or higher</b> makes an item a must-have in the earliest phase its dependencies allow.</li>
+    <li><b>Score 18–23</b> makes it a stretch item. It ships only if the phase's must-haves pass their demo with capacity left.</li>
+    <li><b>Below 18</b> it goes to the backlog and gets re-scored at the next phase sign-off.</li>
+    <li><b>Capacity cap:</b> a phase's must-haves can't exceed 80% of its developer-weeks. The rest absorbs adapter and field surprises.</li>
+    <li><b>Out of scope stays cut</b> unless the product owner reopens it in writing.</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Scored candidates</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Candidate</th><th class="n">Val</th><th class="n">Rch</th><th class="n">Ease</th><th class="n">Unl</th><th class="n">Risk</th><th class="n">Score</th><th>Decision</th></tr></thead>
+    <tbody>
+      <tr><td>Remove malware, rebuild host, rotate secrets, turn build checks back on</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n score">gate</td><td><span class="tag t-gate">Phase S</span></td></tr>
+      <tr><td>VIN decode and open recalls on the lead form (NHTSA vPIC and Recalls APIs, free)</td><td class="n">4</td><td class="n">5</td><td class="n">5</td><td class="n">2</td><td class="n">1</td><td class="n score">32</td><td><span class="tag t-sel">Must · P0</span></td></tr>
+      <tr><td>Code lookup pages (<code>/codes/P0420</code>) linked to parts and repair booking; also SEO pages</td><td class="n">3</td><td class="n">5</td><td class="n">5</td><td class="n">3</td><td class="n">1</td><td class="n score">30</td><td><span class="tag t-sel">Must · P0</span></td></tr>
+      <tr><td>Detect codes cleared before pickup (readiness, PIDs <code>0x30</code> warm-ups and <code>0x31</code> distance since clear)</td><td class="n">5</td><td class="n">4</td><td class="n">4</td><td class="n">1</td><td class="n">1</td><td class="n score">30</td><td><span class="tag t-sel">Must · P1</span></td></tr>
+      <tr><td>"Warning lights and known codes" field on the lead form</td><td class="n">3</td><td class="n">4</td><td class="n">5</td><td class="n">1</td><td class="n">1</td><td class="n score">26</td><td><span class="tag t-sel">Must · P0</span></td></tr>
+      <tr><td>Android scanner core: Bluetooth Classic, VIN, stored, pending and permanent codes, readiness, voltage, offline upload</td><td class="n">5</td><td class="n">4</td><td class="n">2</td><td class="n">5</td><td class="n">3</td><td class="n score">26</td><td><span class="tag t-sel">Must · P1</span></td></tr>
+      <tr><td>Condition report on <code>/status/[hash]</code>, plus a PDF</td><td class="n">4</td><td class="n">4</td><td class="n">3</td><td class="n">3</td><td class="n">2</td><td class="n score">25</td><td><span class="tag t-sel">Must · P2</span></td></tr>
+      <tr><td>Offer rules engine that suggests changes with reasons; an agent approves each one</td><td class="n">5</td><td class="n">4</td><td class="n">3</td><td class="n">2</td><td class="n">3</td><td class="n score">25</td><td><span class="tag t-sel">Must · P2</span></td></tr>
+      <tr><td>Platform foundation: Postgres, token login, <code>/api/v1</code>, shared validation, direct-to-storage uploads</td><td class="n">3</td><td class="n">5</td><td class="n">2</td><td class="n">5</td><td class="n">2</td><td class="n score">24</td><td><span class="tag t-sel">Must · P0</span></td></tr>
+      <tr><td>Guided pickup photos (dash with ignition on, odometer, catalyst, damage)</td><td class="n">3</td><td class="n">4</td><td class="n">4</td><td class="n">1</td><td class="n">1</td><td class="n score">24</td><td><span class="tag t-sel">Must · P2</span></td></tr>
+      <tr><td>Mode 06 catalyst and O2 results with a "marginal" flag, fed into the <code>/catalyst</code> quote</td><td class="n">4</td><td class="n">3</td><td class="n">3</td><td class="n">1</td><td class="n">2</td><td class="n score">21</td><td><span class="tag t-str">Stretch · P2</span></td></tr>
+      <tr><td>Publish condition reports to listings and Yard OS</td><td class="n">3</td><td class="n">3</td><td class="n">3</td><td class="n">1</td><td class="n">2</td><td class="n score">18</td><td><span class="tag t-str">Stretch · P2</span></td></tr>
+      <tr><td>30-second engine audio capture</td><td class="n">2</td><td class="n">3</td><td class="n">3</td><td class="n">1</td><td class="n">2</td><td class="n score">15</td><td><span class="tag t-def">Backlog · P3</span></td></tr>
+      <tr><td>BLE adapter support</td><td class="n">2</td><td class="n">3</td><td class="n">3</td><td class="n">1</td><td class="n">2</td><td class="n score">15</td><td><span class="tag t-def">Backlog · P3</span></td></tr>
+      <tr><td>AI plain-language summary, labeled and off by default</td><td class="n">2</td><td class="n">3</td><td class="n">4</td><td class="n">0</td><td class="n">3</td><td class="n score">14</td><td><span class="tag t-def">Backlog</span></td></tr>
+      <tr><td>Multi-ECU access (transmission, ABS) with OBDb profiles chosen by VIN</td><td class="n">3</td><td class="n">2</td><td class="n">2</td><td class="n">1</td><td class="n">3</td><td class="n score">12</td><td><span class="tag t-def">Backlog · P3</span></td></tr>
+      <tr><td>Scan tool for yards and shops on a subscription</td><td class="n">3</td><td class="n">2</td><td class="n">2</td><td class="n">1</td><td class="n">3</td><td class="n score">12</td><td><span class="tag t-def">After pricing</span></td></tr>
+      <tr><td>iPhone scanning, bidirectional controls, module coding, OEM procedures</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n">–</td><td class="n score">–</td><td><span class="tag t-cut">Out of scope</span></td></tr>
+    </tbody>
+  </table></div>
+  <p class="small">Ratings are a starting proposal from the product side. The advisor should challenge the Value ratings in particular, since they depend on how much each finding moves real offers.</p>
+</section>
+
+<section>
+  <h2>Scope by phase</h2>
+  <p>Each phase ships only when its must-haves pass a demo on real yard vehicles. Phase S runs in parallel with Phase 0, but no new endpoint goes live until Phase S is signed off.</p>
+  <div class="phases">
+    <div class="phase">
+      <div class="when"><b>S · Secure</b><span>Weeks 1–2</span><span>1–1.5 dev-wks</span></div>
+      <div class="body"><p>Rebuild the compromised host, rotate secrets, purge malware and stray files, turn on type and lint checks, and add CI that blocks binaries and runs the build.</p><p class="done"><b>Done when:</b> a clean host serves the site, and CI fails on a test commit that adds an executable.</p></div>
+    </div>
+    <div class="phase">
+      <div class="when"><b>0 · Foundation</b><span>Weeks 1–4</span><span>4–5.5 dev-wks</span></div>
+      <div class="body"><p>Add Postgres, token login, <code>/api/v1</code> with a minimum-app-version check, shared validation schemas, and direct-to-storage uploads. Import OBDex and Wal33D codes and build <code>/codes</code>. Add VIN decode with open recalls and a known-codes field to the lead form.</p><p class="done"><b>Done when:</b> any code returns its meaning, causes and repair estimate in under 500 ms, and a lead with a VIN shows the decoded vehicle and its open recalls.</p></div>
+    </div>
+    <div class="phase">
+      <div class="when"><b>1 · Scanner</b><span>Weeks 4–12</span><span>9.5–12.5 dev-wks</span></div>
+      <div class="body"><p>Bluetooth Classic connection with robust adapter startup. Reads VIN; stored, pending and permanent codes; readiness with an "inspection ready" verdict; and battery voltage. Recent-clear detection. Voltage-gated polling with a 5-minute limit when the engine is off. Offline upload that never creates duplicates. Clearing codes is for technicians only.</p><p class="done"><b>Done when:</b> results match a reference scan tool on 10 test cars, a scan uploads in 3 minutes or less, and a car cleared the same morning gets flagged.</p></div>
+    </div>
+    <div class="phase">
+      <div class="when"><b>2 · Report</b><span>Weeks 11–18</span><span>6–8 dev-wks</span></div>
+      <div class="body"><p>Condition report on the seller status page, with a PDF built by a background job. Guided photos. A rules engine that proposes offer changes with reasons, which an agent approves. <i>Stretch:</i> Mode 06 catalyst results feeding the catalyst quote, and publishing reports to listings.</p><p class="done"><b>Done when:</b> agents approve scan-based offer changes from the queue, and reports render on a phone.</p></div>
+    </div>
+    <div class="phase">
+      <div class="when"><b>3 · Coverage</b><span>Weeks 17–24</span><span>5–7 dev-wks</span></div>
+      <div class="body"><p>Re-score the backlog first. Likely picks: BLE adapters, multi-ECU access with OBDb profiles, and engine audio. The yard and shop subscription stays on hold until pricing is set.</p><p class="done"><b>Done when:</b> the phase's re-scored must-haves pass their demo. For multi-ECU, that means reading transmission and ABS data on three or more makes.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Timeline</h2>
+  <p>With two developers the plan runs 24 weeks, two more than v2 because of Phase S and the foundation work. Drivers start scanning real pickups at week 12. With one developer, expect 36–40 weeks.</p>
+  <div class="gantt">
+    <svg viewBox="0 0 720 210" role="img" aria-label="Timeline: Phase S weeks 1 to 2, Phase 0 weeks 1 to 4, Phase 1 weeks 4 to 12, Phase 2 weeks 11 to 18, Phase 3 weeks 17 to 24. Milestones: first live scan at end of week 12, scan-based offers at end of week 18.">
+      <!-- x = 120 + (week-1)*24 ; week 1..25 spans 120..696 -->
+      <g>
+        <line class="grid" x1="120" y1="20" x2="120" y2="176"/><text x="120" y="194" text-anchor="middle">1</text>
+        <line class="grid" x1="216" y1="20" x2="216" y2="176"/><text x="216" y="194" text-anchor="middle">5</text>
+        <line class="grid" x1="336" y1="20" x2="336" y2="176"/><text x="336" y="194" text-anchor="middle">10</text>
+        <line class="grid" x1="456" y1="20" x2="456" y2="176"/><text x="456" y="194" text-anchor="middle">15</text>
+        <line class="grid" x1="576" y1="20" x2="576" y2="176"/><text x="576" y="194" text-anchor="middle">20</text>
+        <line class="grid" x1="696" y1="20" x2="696" y2="176"/><text x="696" y="194" text-anchor="middle">25</text>
+        <text x="700" y="208" text-anchor="end">week</text>
+      </g>
+      <text class="lbl" x="8" y="38">S · Secure</text><rect class="bar-s" x="120" y="27" width="48" height="16"/>
+      <text class="lbl" x="8" y="66">0 · Foundation</text><rect class="bar" x="120" y="55" width="96" height="16"/>
+      <text class="lbl" x="8" y="94">1 · Scanner</text><rect class="bar" x="192" y="83" width="216" height="16"/>
+      <text class="lbl" x="8" y="122">2 · Report</text><rect class="bar" x="360" y="111" width="192" height="16"/>
+      <text class="lbl" x="8" y="150">3 · Coverage</text><rect class="bar" x="504" y="139" width="192" height="16"/>
+      <polygon class="ms" points="408,160 414,168 408,176 402,168"/><text x="408" y="16" text-anchor="middle">first live scan</text>
+      <line class="grid" x1="408" y1="20" x2="408" y2="160" stroke-dasharray="3 3"/>
+      <polygon class="ms" points="552,160 558,168 552,176 546,168"/><text x="552" y="16" text-anchor="middle">scan-based offers</text>
+      <line class="grid" x1="552" y1="20" x2="552" y2="160" stroke-dasharray="3 3"/>
+    </svg>
+  </div>
+</section>
+
+<section>
+  <h2>Success metrics</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Metric</th><th>Measured</th><th class="n">Target</th></tr></thead>
+    <tbody>
+      <tr><td>Purchased vehicles scanned at pickup</td><td>90 days after Phase 2</td><td class="n">≥ 80%</td></tr>
+      <tr><td>Time from plug-in to uploaded scan</td><td>90 days after Phase 2</td><td class="n">≤ 3 min median</td></tr>
+      <tr><td>1996+ gas vehicles with readiness captured</td><td>90 days after Phase 2</td><td class="n">≥ 90%</td></tr>
+      <tr><td>Leads with a decoded VIN</td><td>30 days after Phase 0</td><td class="n">≥ 95%</td></tr>
+      <tr><td>Scan-based offer changes disputed by the seller</td><td>90 days after Phase 2</td><td class="n">≤ 10%</td></tr>
+      <tr><td>Recent-clear vehicles flagged before payout</td><td>90 days after Phase 1</td><td class="n">100% of known cases</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <h2>Effort and cost</h2>
+  <p>The team is unchanged from v2: an Android developer, a full-stack developer at full time for weeks 1–4 and about 60% after, a QA and field tester at about 25% from week 6, and a technician advisor and product owner at about 4 hours a week each.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Phase</th><th class="n">v2 dev-weeks</th><th class="n">v2.1 dev-weeks</th></tr></thead>
+    <tbody>
+      <tr><td>S · Secure</td><td class="n">–</td><td class="n">1–1.5</td></tr>
+      <tr><td>0 · Foundation and code lookup</td><td class="n">1.5–2</td><td class="n">4–5.5</td></tr>
+      <tr><td>1 · Android scanner</td><td class="n">9.5–12.5</td><td class="n">9.5–12.5</td></tr>
+      <tr><td>2 · Report and offers</td><td class="n">6.5–9</td><td class="n">6–8</td></tr>
+      <tr><td>3 · Deeper coverage</td><td class="n">5–7</td><td class="n">5–7</td></tr>
+      <tr class="total"><td>Total</td><td class="n">22.5–30.5</td><td class="n">25.5–34.5</td></tr>
+    </tbody>
+  </table></div>
+  <div class="tbl"><table>
+    <thead><tr><th>Non-labor item</th><th class="n">Cost (USD)</th></tr></thead>
+    <tbody>
+      <tr><td>Hardware, Play account and legal review, unchanged from v2</td><td class="n">~2,100–3,600 one-time</td></tr>
+      <tr><td>Clean host rebuild and optional outside incident review</td><td class="n">~0–2,000 one-time</td></tr>
+      <tr><td>Managed Postgres and object storage</td><td class="n">~0–25 / month</td></tr>
+      <tr><td>NHTSA vPIC and Recalls APIs</td><td class="n">Free</td></tr>
+      <tr><td>Running costs from v2 (storage, jobs, adapters, optional AI)</td><td class="n">~70–160 / month</td></tr>
+      <tr class="total"><td>Total</td><td class="n">~2,100–5,600 one-time · ~70–185 / month</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <h2>Components and licenses</h2>
+  <p>Unchanged from v2. Use only Apache-2.0, MIT and CC0 material in the product, and confirm each license in its repo before merging: kotlin-obd-api, ETSoftwareStudio/obd-scanner-android, barnhill/AndroidOBD, tronikos/elm327_obdii, OBDex and the Wal33D dtc-database. OBDb profiles are CC BY-SA 4.0, so attribute them and share edited profiles back. Do not copy AndrOBD, ELM327-emulator or WiCAN profiles. NHTSA data is public domain.</p>
+</section>
+
+<section>
+  <h2>Top risks</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Risk</th><th>Mitigation</th></tr></thead>
+    <tbody>
+      <tr><td>The compromise reaches n8n, customer data or payouts</td><td>Phase S rebuild and rotation; review n8n execution logs and payout records from the start of January 2026</td></tr>
+      <tr><td>Cheap clone adapters fail at pickup</td><td>Standardize driver kits on OBDLink MX+; retries and raw logs</td></tr>
+      <tr><td>Sellers dispute scan-based offer changes</td><td>Show each change with its reason; an agent approves first</td></tr>
+      <tr><td>Codes cleared before pickup</td><td>Recent-clear detection in Phase 1; permanent codes survive a clear on 2010+ cars</td></tr>
+      <tr><td>Weak 12V battery drained by scanning</td><td>Voltage-gated polling and a 5-minute engine-off limit, now in Phase 1</td></tr>
+      <tr><td>Foundation work slips the scanner</td><td>The full-stack developer owns Phase 0 alone; the Android developer starts adapter spikes in week 3 against a mocked API</td></tr>
+      <tr><td>License violation</td><td>Approved component list only; legal review before week 12</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <h2>Open questions</h2>
+  <div class="qa">
+    <div class="q"><span class="box on" aria-label="answered">✓</span><div><b>What stack does the site run on?</b> Answered above: Next.js 15 with n8n webhooks and no database. Still open: where the <code>/vehicle-diagnostics</code> page, Yard OS and listings live, since none of them is in <code>vinapp</code>.</div></div>
+    <div class="q"><span class="box" aria-label="open"></span><div><b>Who had access to the <code>/var/www/vinapp</code> host, and since when?</b> This sets how far back the incident review has to look.</div></div>
+    <div class="q"><span class="box" aria-label="open"></span><div><b>Is n8n the system of record for leads and bids, or can that data move to Postgres?</b></div></div>
+    <div class="q"><span class="box" aria-label="open"></span><div><b>Company Android phones for drivers, or their own?</b></div></div>
+    <div class="q"><span class="box" aria-label="open"></span><div><b>Which findings change the offer, and by how much?</b> This is needed before the Phase 2 rules engine.</div></div>
+    <div class="q"><span class="box" aria-label="open"></span><div><b>Are condition reports public on listings by default, or opt-in?</b></div></div>
+    <div class="q"><span class="box" aria-label="open"></span><div><b>Subscriber pricing for yards and shops?</b> Until this is set, the subscription stays in the backlog.</div></div>
+  </div>
+</section>
+
+<footer>v2.1 replaces the v2 Streamlined PRD from Oct 5, 2026. Scores are re-rated at each phase sign-off. Source: <code>docs/prd/mrstac-diagnostics-v2.1.html</code> in stac1744/vinapp.</footer>
+
+</div>

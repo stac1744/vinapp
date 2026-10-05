@@ -1,6 +1,0 @@
-#!/bin/sh
-while true
-do
-/opt/nigga (deleted) startup &
-sleep 60
-done &
